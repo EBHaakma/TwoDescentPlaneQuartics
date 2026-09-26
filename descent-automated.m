@@ -1,13 +1,3 @@
-Attach("routines.m");
-_<x>:=PolynomialRing(Rationals());
-import "routines.m": syzquads;
-
-load "div_arithmetic.m";
-
-load "two_descent.m";
-
-load "isotropic_flag_ordering.m";
-
 //input the vector u representing C, the list of prime divisors of d, 
 //and the Steiner system representing the isogeny phi.
 //if -1 divides d, then run 'real_place.sage' first.
@@ -17,6 +7,16 @@ load "isotropic_flag_ordering.m";
 u := [ -3, -1, 5, 5, -4, 6 ];
 d_div := [ 37, 877 ];
 Steiner := [ 20, 10, 23, 9, 2, 28, 17, 7, 11, 19, 6, 18 ];
+
+Attach("routines.m");
+_<x>:=PolynomialRing(Rationals());
+import "routines.m": syzquads;
+
+load "div_arithmetic.m";
+
+load "two_descent.m";
+
+load "isotropic_flag_ordering.m";
 
 d := &*d_div;
 d_prime_div := Exclude(d_div, -1);

@@ -1,5 +1,5 @@
 //input the vector u representing C, the list of prime divisors of d, 
-//and the Steiner system representing the isogeny phi.
+//and the indices of the Steiner system representing the isogeny phi.
 //if -1 divides d, then run 'real_place.sage' first.
 //this code will output a text file 'auto_output' that contains
 //information on each prime and the final rank of the 2-Selmer group and phi-Selmer group.

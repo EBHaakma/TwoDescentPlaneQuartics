@@ -713,25 +713,14 @@ component_map2 := hom<HR6->HR | [polynomial_map2(a): a in OrderedGenerators(HR6)
 polynomial_map3 := func<a | &+[projHR[i](a)*ZZ!proj_vec3[i] : i in [1..6]]>;
 component_map3 := hom<HR6->HR | [polynomial_map3(a): a in OrderedGenerators(HR6)]>;
 
-polynomial_map4 := func<a | &+[projHR[i](a)*ZZ!proj_vec4[i] : i in [1..6]]>;
-component_map4 := hom<HR6->HR | [polynomial_map4(a): a in OrderedGenerators(HR6)]>;
-polynomial_map5 := func<a | &+[projHR[i](a)*ZZ!proj_vec5[i] : i in [1..6]]>;
-component_map5 := hom<HR6->HR | [polynomial_map5(a): a in OrderedGenerators(HR6)]>;
-polynomial_map6 := func<a | &+[projHR[i](a)*ZZ!proj_vec6[i] : i in [1..6]]>;
-component_map6 := hom<HR6->HR | [polynomial_map6(a): a in OrderedGenerators(HR6)]>;
-
 HR3,embHR3,projHR3:=DirectSum([HR: i in [1..3]]);
 projection_map := func< a | &*[embHR3[1](component_map1(a)), embHR3[2](component_map2(a)), embHR3[3](component_map3(a))]>;
-projection_map2 := func< a | &*[embHR3[1](component_map4(a)), embHR3[2](component_map5(a)), embHR3[3](component_map6(a))]>;
 HR6toHR3 := hom<HR6->HR3 | [projection_map(a): a in OrderedGenerators(HR6)]>;
-HR6toHR3_2 := hom<HR6->HR3 | [projection_map2(a): a in OrderedGenerators(HR6)]>;
     
 projected_image := HR6toHR3(found_image);
-projected_image2 := HR6toHR3_2(found_image);
     
 proj_procedural_map:=func< a | &*[embHR3[i](HStoHR(projHS3[i](a))) : i in [1..3]]>;
 HS3toHR3 := hom<HS3->HR3 | [proj_procedural_map(a): a in OrderedGenerators(HS3)]>;
     
 proj_selmer_candidate := (projected_image@@HS3toHR3) meet proj_selmer_candidate;
-proj_selmer_candidate2 := (projected_image2@@HS3toHR3) meet proj_selmer_candidate2;
 PrintFile("auto_output.txt", "Rank of 2-isogeny-Selmer group: " cat Sprint(#AbelianInvariants(proj_selmer_candidate)));

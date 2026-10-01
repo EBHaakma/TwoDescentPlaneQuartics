@@ -4,9 +4,14 @@
 //this code will output a text file 'auto_output' that contains
 //information on each prime and the final rank of the 2-Selmer group and phi-Selmer group.
 
-u := [ -3, -1, 5, 5, -4, 6 ];
-d_div := [ 37, 877 ];
-Steiner := [ 20, 10, 23, 9, 2, 28, 17, 7, 11, 19, 6, 18 ];
+u := [ -6, -4, 2, -3, 6, 5 ];
+d_div := [ -1, 13, 19, 29, 31, 43 ];
+Steiner := [ 25, 6, 4, 28, 24, 7, 16, 9, 11, 14, 8, 20 ];
+
+//if d is negative, then include -1 in the divisors and run 'RealPlace' from 'real_place.sage'
+//and place its output here
+
+sage_output := [[1, 0, 0, 1, 0, 0], [0, 1, 1, 0, 0, 0], [0, 0, 0, 0, 1, 0]];
 
 Attach("routines.m");
 _<x>:=PolynomialRing(Rationals());
@@ -666,9 +671,7 @@ procedural_map:=func< a | &*[embHR[i](HStoHR(projHS[i](a))) : i in [1..6]]>;
 HS6toHR6:=hom<HS6->HR6| [procedural_map(a): a in OrderedGenerators(HS6)]>;
 
 if -1 in d_div then
-    input := Read("sage-output.txt");
-    basis := eval(input);
-    found_image := sub<HR6 | [HR6!b : b in basis]>;
+    found_image := sub<HR6 | [HR6!b : b in sage_output]>;
 else
     found_image := sub<HR6 | >;
 

@@ -113,22 +113,22 @@ function InitArithFunc(f, p, R, P, dmax, offset)
         return ChangePrecision(R!newCoeff, AbsolutePrecision(z));;
     end function;
     
-    function construct_W(d)
-        W:=RModule(Integers(),#mon[d]);
-        tovec:=func<f| W![MonomialCoefficient(f,m):m in mon[d]]>;
+    function construct_sP(d)
+        sP:=RModule(Integers(),#mon[d]);
+        tovec:=func<f| sP![MonomialCoefficient(f,m):m in mon[d]]>;
         topol:=func<v| &+[v[i]*mon[d][i]: i in [1..#mon[d]]]>;
-        return W, tovec,topol;
+        return sP, tovec,topol;
     end function;
 
-    Wd:=[];
+    sPd:=[];
     tovecd:=[];
     topold:=[];
     for d in [1..dmax] do
-        Wd[d],tovecd[d],topold[d]:=construct_W(d);
+        sPd[d],tovecd[d],topold[d]:=construct_sP(d);
     end for;
 
     function construct_mucoeff(n,m)
-        return [[tovecd[n+m](topold[n](a)*topold[m](b)) : b in Basis(Wd[m])] : a in Basis(Wd[n])];
+        return [[tovecd[n+m](topold[n](a)*topold[m](b)) : b in Basis(sPd[m])] : a in Basis(sPd[n])];
     end function;
     
     function construct_mu(n,m,R)
@@ -160,7 +160,7 @@ function InitArithFunc(f, p, R, P, dmax, offset)
         return mu;
     end function;
 
-    Wd:=[ChangeRing(W,R): W in Wd];
+    sPd:=[ChangeRing(sP,R): sP in sPd];
     munm:=[[construct_mu(n,m,R) : m in [1..dmax-n]]: n in [1..dmax]];
     muBnm:=[[construct_muB(n,m,R) : m in [1..dmax-n]]: n in [1..dmax]];
     muBBnm:=[[construct_muBB(n,m,R) : m in [1..dmax-n]]: n in [1..dmax]];
@@ -178,7 +178,7 @@ function InitArithFunc(f, p, R, P, dmax, offset)
 
     fvec:=convert(tovecd[4](L!f));
     fmat:=[* i lt 4 select [] else i eq 4 select Matrix([fvec]) else
-            PseudoEchelonForm(oldmul(Matrix([fvec]),Matrix(Basis(Wd[i-4])))): i in [1..8]*];
+            PseudoEchelonForm(oldmul(Matrix([fvec]),Matrix(Basis(sPd[i-4])))): i in [1..8]*];
             
     function mul(A,B:target:=0)
         A:=ChangeRing(A, RamF);
@@ -233,11 +233,11 @@ function InitArithFunc(f, p, R, P, dmax, offset)
             target := dim[n]-codimA;
         end if;
         krn:=Transpose(RightKernel(A, pivots));
-        BasisWn:=Basis(Wd[n]);
-        BasisWd:=Basis(Wd[m-n]);
-        newmat:=Matrix(R, #BasisWn, 1, [0: i in [1..#BasisWn]]); //initialize a matrix
-        for j in [1..#BasisWd] do
-            U:=Matrix([muBBnm[n][m-n](i,j)*krn : i in [1..#BasisWn]]);
+        BasissPn:=Basis(sPd[n]);
+        BasissPd:=Basis(sPd[m-n]);
+        newmat:=Matrix(R, #BasissPn, 1, [0: i in [1..#BasissPn]]); //initialize a matrix
+        for j in [1..#BasissPd] do
+            U:=Matrix([muBBnm[n][m-n](i,j)*krn : i in [1..#BasissPn]]);
             newmat:=HorizontalJoin(newmat, U);
             if Ncols(newmat) ge codimA+offset then
                 B, Bpivs := PseudoEchelonForm(Transpose(newmat));
@@ -266,11 +266,11 @@ function InitArithFunc(f, p, R, P, dmax, offset)
         test := Evaluate(fQp, v);
         assert test eq BigO(Qp!p^Minimum(AbsolutePrecision(test), 50));
         IP := [v[2]*XQp - v[1]*YQp, v[3]*XQp - v[1]*ZQp, v[2]*ZQp - v[3]*YQp];
-        Wp := RModule(Qp, #MonomialsOfDegree(PolyQpRng, 1));
-        veclst := [Wp![MonomialCoefficient(g, m) : m in MonomialsOfDegree(PolyQpRng, 1)] : g in IP];
+        sPp := RModule(Qp, #MonomialsOfDegree(PolyQpRng, 1));
+        veclst := [sPp![MonomialCoefficient(g, m) : m in MonomialsOfDegree(PolyQpRng, 1)] : g in IP];
         MP_1, MP_1pivs := PseudoEchelonForm(Matrix(veclst));
     end if;
-    MP_2, MP_2pivs:=mul(MP_1,Matrix(Basis(Wd[1])));
+    MP_2, MP_2pivs:=mul(MP_1,Matrix(Basis(sPd[1])));
     M2P_4, M2P_4pivs:=mul(MP_2,MP_2);
     M4P_8, M4P_8pivs:=mul(M2P_4,M2P_4);
     M4P_4, M4P_4pivs:=pull(M4P_8,M4P_8pivs,4);
@@ -281,12 +281,12 @@ function InitArithFunc(f, p, R, P, dmax, offset)
     
     bvec:=pull(M9P_4, M9P_4pivs, 3);
     bvec:=Matrix([bvec[Nrows(bvec)]]);
-    bvec_8, bvec_8pivs:=PseudoEchelonForm(VerticalJoin(mul(bvec,Matrix(Basis(Wd[5]))),fmat[8]));
+    bvec_8, bvec_8pivs:=PseudoEchelonForm(VerticalJoin(mul(bvec,Matrix(Basis(sPd[5]))),fmat[8]));
     krn:=Transpose(RightKernel(bvec_8, bvec_8pivs));
-    BasisW4 := Basis(Wd[4]);
-    mat_init:=Matrix(RamF, #BasisW4, 1, [0: i in [1..#BasisW4]]);
+    BasissP4 := Basis(sPd[4]);
+    mat_init:=Matrix(RamF, #BasissP4, 1, [0: i in [1..#BasissP4]]);
     for w in Rows(M9P_4) do
-        U := Matrix([muBnm[4][4](w,j)*krn : j in [1..#BasisW4]]);
+        U := Matrix([muBnm[4][4](w,j)*krn : j in [1..#BasissP4]]);
         mat_init:=HorizontalJoin(mat_init, U);
         if Ncols(mat_init) ge 3+offset then
             B, Bpivs := PseudoEchelonForm(Transpose(mat_init));
@@ -305,13 +305,13 @@ function InitArithFunc(f, p, R, P, dmax, offset)
     
         gvec:=pull(MD1D2Dp_4, MD1D2Dp_4pivs, 3);
         gvec:=Matrix([gvec[Nrows(gvec)]]);
-        gvec_8, gvec_8pivs:=PseudoEchelonForm(VerticalJoin(mul(gvec,Matrix(Basis(Wd[5]))),fmat[8]));
+        gvec_8, gvec_8pivs:=PseudoEchelonForm(VerticalJoin(mul(gvec,Matrix(Basis(sPd[5]))),fmat[8]));
         krn:=Transpose(RightKernel(gvec_8, gvec_8pivs));
     
-        BasisW4 := Basis(Wd[4]);
-        mat_init:=Matrix(RamF, #BasisW4, 1, [0: i in [1..#BasisW4]]);
+        BasissP4 := Basis(sPd[4]);
+        mat_init:=Matrix(RamF, #BasissP4, 1, [0: i in [1..#BasissP4]]);
         for w in Rows(MD1D2Dp_4) do
-            U := Matrix([muBnm[4][4](w,j)*krn : j in [1..#BasisW4]]);
+            U := Matrix([muBnm[4][4](w,j)*krn : j in [1..#BasissP4]]);
             mat_init:=HorizontalJoin(mat_init, U);
             if Ncols(mat_init) ge 3+offset then
                 B, Bpivs := PseudoEchelonForm(Transpose(mat_init));
